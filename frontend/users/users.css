@@ -19,14 +19,17 @@ body {
 }
 
 .container {
-    width: 450px;
+    width: 650px;
     background-color: rgba(255, 255, 255, 0.95);
-    padding: 30px;
-    border-radius: 16px;
+    padding: 35px;
+    border-radius: 20px;
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.2);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
 }
 
 .container:hover {
@@ -36,10 +39,10 @@ body {
 
 h2 {
     text-align: center;
-    margin-bottom: 25px;
+    margin-bottom: 30px;
     color: #1a2a6c;
-    font-weight: 600;
-    font-size: 28px;
+    font-weight: 700;
+    font-size: 32px;
     position: relative;
     padding-bottom: 15px;
 }
@@ -50,7 +53,7 @@ h2::after {
     bottom: 0;
     left: 50%;
     transform: translateX(-50%);
-    width: 60px;
+    width: 80px;
     height: 3px;
     background: linear-gradient(90deg, #1a2a6c, #b21f1f);
     border-radius: 3px;
@@ -60,12 +63,16 @@ h2::after {
     list-style: none;
     padding: 0;
     margin: 0;
-    max-height: 400px;
+    flex: 1;
     overflow-y: auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 25px;
+    justify-content: center;
 }
 
 #user-list::-webkit-scrollbar {
-    width: 6px;
+    width: 8px;
 }
 
 #user-list::-webkit-scrollbar-track {
@@ -79,53 +86,145 @@ h2::after {
 }
 
 #user-list li {
-    padding: 15px 20px;
-    margin-bottom: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 15px;
     background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-    border-radius: 10px;
+    border-radius: 18px;
     cursor: pointer;
     transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    border-left: 4px solid transparent;
     position: relative;
     overflow: hidden;
+    font-size: 16px;
+    font-weight: 500;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    border: 2px solid transparent;
 }
 
 #user-list li::before {
     content: "👤";
-    font-size: 20px;
-    margin-right: 15px;
-    display: inline-block;
+    font-size: 60px;
+    margin-bottom: 15px;
+    display: block;
     transition: transform 0.3s ease;
+}
+
+#user-list li::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(26, 42, 108, 0.1), rgba(178, 31, 31, 0.1));
+    transform: scale(0);
+    transition: transform 0.3s ease;
+    border-radius: 18px;
+    z-index: 0;
 }
 
 #user-list li:hover {
     background: linear-gradient(135deg, #e9ecef, #dee2e6);
-    transform: translateX(5px);
-    border-left-color: #1a2a6c;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
 #user-list li:hover::before {
-    transform: scale(1.2);
+    transform: scale(1.1);
+}
+
+#user-list li:hover::after {
+    transform: scale(1);
 }
 
 #user-list li:active {
-    transform: translateX(2px);
+    transform: translateY(-2px);
+}
+
+#user-list li .username {
+    position: relative;
+    z-index: 1;
+    font-weight: 600;
+    color: #333;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+}
+
+/* Online users styling */
+#user-list li.online {
+    background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+    border-color: #4caf50;
+}
+
+#user-list li.online::before {
+    content: "👤";
+}
+
+#user-list li.online:hover {
+    background: linear-gradient(135deg, #c8e6c9, #a5d6a7);
+}
+
+/* Offline users styling */
+#user-list li.offline {
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    border-color: transparent;
+}
+
+#user-list li.offline::before {
+    content: "👤";
+    opacity: 0.7;
+}
+
+/* Status indicator styles */
+.status-indicator {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.8);
+    z-index: 2;
+}
+
+.online .status-indicator {
+    background-color: #4caf50;
+    animation: pulse 2s infinite;
+}
+
+.offline .status-indicator {
+    background-color: #9e9e9e;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(76, 175, 80, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
+    }
 }
 
 #message {
     color: #c62828;
     text-align: center;
-    margin-top: 15px;
-    padding: 10px;
-    border-radius: 6px;
+    margin-top: 20px;
+    padding: 12px;
+    border-radius: 8px;
     background-color: #ffebee;
     border-left: 4px solid #c62828;
     opacity: 0;
     transform: translateY(-10px);
     transition: all 0.3s ease;
+    font-weight: 500;
 }
 
 #message.show {
@@ -137,14 +236,50 @@ h2::after {
 @media (max-width: 520px) {
     .container {
         width: 90%;
-        padding: 20px;
+        padding: 25px;
+        max-height: 90vh;
     }
     
     h2 {
-        font-size: 24px;
+        font-size: 28px;
+        margin-bottom: 25px;
+    }
+    
+    #user-list {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 15px;
     }
     
     #user-list li {
-        padding: 12px 15px;
+        padding: 15px 10px;
+        font-size: 14px;
     }
+    
+    #user-list li::before {
+        font-size: 48px;
+        margin-bottom: 10px;
+    }
+    
+    .status-indicator {
+        width: 16px;
+        height: 16px;
+        top: 12px;
+        right: 12px;
+    }
+}
+
+/* Animation for new user items */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+#user-list li {
+    animation: slideIn 0.4s ease forwards;
 }

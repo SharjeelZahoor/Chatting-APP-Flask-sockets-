@@ -1,5 +1,6 @@
 import pymysql
 from config import Config
+from pymysql.cursors import DictCursor
 
 def get_db_connection():
     """
@@ -10,7 +11,7 @@ def get_db_connection():
         user=Config.MYSQL_USER,
         password=Config.MYSQL_PASSWORD,
         database=Config.MYSQL_DB,
-        cursorclass=pymysql.cursors.DictCursor
+        cursorclass=DictCursor  
     )
     return connection
   

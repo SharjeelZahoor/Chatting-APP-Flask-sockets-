@@ -3,11 +3,10 @@ from flask_cors import CORS
 from routes.auth_routes import auth_bp
 from routes.user_routes import user_bp
 from routes.message_routes import message_bp
-from flask_socketio import SocketIO, emit, join_room, leave_room
-from utills.jwt_helpers import decode_jwt
+from flask_socketio import SocketIO, emit
 from flask import request
-
-
+from models.user_model import UserModel
+from utills.jwt_helpers import encode_jwt, decode_jwt
 
 app = Flask(__name__)
 CORS(app)
@@ -26,6 +25,8 @@ def home():
 # Dictionary to track connected users: user_id -> session_id
 connected_users = {}
 
+from utills.status_helpers import connected_users, set_user_online, set_user_offline
+
 @socketio.on('connect')
 def handle_connect():
     token = request.args.get('token')
@@ -33,20 +34,25 @@ def handle_connect():
     if payload:
         user_id = payload['sub']
         connected_users[user_id] = request.sid
-        print(f"User {user_id} connected, SID: {request.sid}")
+        set_user_online(user_id)
+        socketio.emit('user_status_update', {'user_id': user_id, 'status': 'online'})
+        print(f"✅ User {user_id} connected (SID: {request.sid})")
     else:
-        return False  # Disconnect if token invalid
+        return False
 
 @socketio.on('disconnect')
 def handle_disconnect():
     sid_to_remove = None
-    for user_id, sid in connected_users.items():
-        if sid == request.sid:
+    for user_id, socket_id in connected_users.items():
+        if socket_id == request.sid:
             sid_to_remove = user_id
             break
     if sid_to_remove:
-        del connected_users[sid_to_remove]
-        print(f"User {sid_to_remove} disconnected")
+        set_user_offline(sid_to_remove)
+        socketio.emit('user_status_update', {'user_id': sid_to_remove, 'status': 'offline'})
+
+
+
 
 @socketio.on('send_message')
 def handle_send_message(data):

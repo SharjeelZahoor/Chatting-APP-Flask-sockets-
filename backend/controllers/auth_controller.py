@@ -1,8 +1,8 @@
 from flask import request, jsonify
 from models.user_model import UserModel
-from utills.jwt_helpers import encode_jwt
+from utills.jwt_helpers import encode_jwt, decode_jwt
+from utills.status_helpers import set_user_offline
 from werkzeug.security import generate_password_hash, check_password_hash
-
 class AuthController:
 
     @staticmethod
@@ -33,6 +33,7 @@ class AuthController:
         data = request.get_json()
         email = data.get('email')
         password = data.get('password')
+          
 
         if not email or not password:
             return jsonify({'message': 'Email and password required'}), 400
@@ -43,7 +44,7 @@ class AuthController:
 
         if not check_password_hash(user['password'], password):
             return jsonify({'message': 'Invalid credentials'}), 401
-
+        UserModel.update_status(user['id'], 'online')
         # Encode JWT (role optional for now)
         token = encode_jwt(user['id'], 'user')
 
@@ -56,3 +57,22 @@ class AuthController:
                 'email': user['email']
             }
         }), 200
+
+
+    @staticmethod
+    def logout():
+        # Get token from Authorization header
+        auth_header = request.headers.get('Authorization')
+        if not auth_header:
+            return jsonify({'message': 'Authorization token required'}), 401
+
+        token = auth_header.split(" ")[1]
+        payload = decode_jwt(token)
+        if not payload:
+            return jsonify({'message': 'Invalid token'}), 401
+
+        user_id = payload['sub']
+        set_user_offline(user_id)
+
+        return jsonify({'message': 'Logout successful'}), 200
+
